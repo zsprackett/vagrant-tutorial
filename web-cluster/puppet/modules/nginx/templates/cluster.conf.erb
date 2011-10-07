@@ -1,0 +1,11 @@
+upstream <%= name %> {
+<% if servers.is_a?(Array)
+servers.each do |val| -%>
+  server <%= val %>;
+<% end
+elsif servers.is_a?(Hash)
+servers.each do |k,v| -%>
+  server <%= k %><% v.each do |type,val| %> <%= type %>=<%= val %><% end -%>;
+<% end
+end -%>
+}

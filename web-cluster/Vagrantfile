@@ -1,0 +1,38 @@
+Vagrant::Config.run do |config|
+  config.vm.define :lb do |lb_config|
+      lb_config.vm.network("33.33.33.10")
+      lb_config.vm.box  = "CentOS-5.7-x86_64"
+      lb_config.vm.forward_port("nginx",80,8080)
+      lb_config.ssh.timeout = 300
+      lb_config.ssh.max_tries = 300
+      lb_config.vm.provision  :puppet do  |puppet|
+        puppet.manifests_path = "puppet/vagrant-manifests"
+        puppet.manifest_file = "lb.pp"
+        puppet.module_path  = "puppet/modules"
+      end
+  end
+  config.vm.define :web do |web_config|
+      web_config.vm.network("33.33.33.50")
+      web_config.vm.box  = "CentOS-5.7-x86_64"
+      web_config.vm.forward_port("apache",8081,8081)
+      web_config.vm.forward_port("varnish",8082,8082)
+      web_config.ssh.timeout = 300
+      web_config.ssh.max_tries = 300
+      web_config.vm.provision  :puppet do  |puppet|
+        puppet.manifests_path = "puppet/vagrant-manifests"
+        puppet.manifest_file = "web.pp"
+        puppet.module_path  = "puppet/modules"
+      end
+  end
+  config.vm.define :db do |db_config|
+      db_config.vm.network("33.33.33.100")
+      db_config.vm.box  = "CentOS-5.7-x86_64"
+      db_config.ssh.timeout = 300
+      db_config.ssh.max_tries = 300
+      db_config.vm.provision  :puppet do  |puppet|
+        puppet.manifests_path = "puppet/vagrant-manifests"
+        puppet.manifest_file = "db.pp"
+        puppet.module_path  = "puppet/modules"
+      end
+  end
+end

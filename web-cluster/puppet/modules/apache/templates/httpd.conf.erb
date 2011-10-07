@@ -1,0 +1,64 @@
+Include /etc/httpd/modules.d/*.conf
+<% if listen_ports.is_a?(Array)
+listen_ports.each do |p| -%>
+Listen 0.0.0.0:<%= p %>
+<% end
+else %>
+Listen 0.0.0.0:<%= listen_ports %>
+<% end %>
+
+User apache
+Group apache
+ServerName <%= fqdn %>
+ServerAdmin root@<%= fqdn %>
+UseCanonicalName Off
+ServerSignature Off
+HostnameLookups Off
+ServerTokens Prod
+ServerRoot "/etc/httpd"
+DocumentRoot "/var/www/html"
+PidFile run/httpd.pid
+ScoreBoardFile run/httpd.scoreboard
+
+Timeout 10
+KeepAlive On
+MaxKeepAliveRequests 256
+KeepAliveTimeout 2
+MinSpareServers 5
+MaxSpareServers 10
+StartServers 5
+ServerLimit 15
+MaxClients 15
+MaxRequestsPerChild 2000
+LimitRequestFields 50
+
+ExtendedStatus On
+<Location /server-status>
+  SetHandler server-status
+  Order allow,deny
+  Allow from <%= internal_network %>
+  Deny from all
+</Location>
+
+<IfModule dir_module>
+    DirectoryIndex index.html index.php
+</IfModule>
+
+TypesConfig /etc/mime.types
+DefaultType text/plain
+AddEncoding x-compress .Z
+AddEncoding x-gzip .gz .tgz
+AddType application/x-compress .Z
+AddType application/x-gzip .gz .tgz
+AddType application/x-tar .tgz
+
+<% if listen_ports.is_a?(Array)
+listen_ports.each do |p| -%>
+NameVirtualHost *:<%= p %>
+<% end
+else %>
+NameVirtualHost *:<%= listen_ports %>
+<% end %>
+
+Include /etc/httpd/conf.d/*.conf
+Include /etc/httpd/vhosts.d/*.conf

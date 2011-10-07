@@ -1,0 +1,34 @@
+user nobody nobody;
+worker_processes 8;
+
+error_log /var/log/nginx/error.log debug;
+pid /var/run/nginx.pid;
+
+events {
+  worker_connections 1024;
+}
+
+http {
+  include /etc/nginx/clusters.d/*.conf;
+
+  gzip on;
+  gzip_http_version 1.0;
+  gzip_comp_level 2;
+  gzip_proxied any;
+  gzip_types text/plain text/html text/css application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+
+  server {
+    listen *:80;
+    server_name <%= hostname %>;
+    server_name <%= fqdn %>;
+
+    location /nginx_status {
+      stub_status on;
+      access_log off;
+      allow <%= internal_network %>;
+      deny all;
+    }
+  }
+
+  include /etc/nginx/vhosts.d/*.conf;
+}

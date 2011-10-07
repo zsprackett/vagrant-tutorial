@@ -1,0 +1,16 @@
+<VirtualHost *:80>
+  ServerName <%= name %>
+  ServerAlias <%= name %>
+
+  DocumentRoot /var/www/<%= name %>
+
+  <Directory "/var/www/<%= name %>">
+    AllowOverride All
+    <FilesMatch \.(?i:log|txt|properties|sql)$>
+      Order allow,deny
+      Deny from all
+    </FilesMatch>
+    Order allow,deny
+    Allow from all
+  </Directory>
+</VirtualHost>

@@ -1,0 +1,15 @@
+NFILES=<%= nfiles %>
+MEMLOCK=<%= memlock %>
+
+DAEMON_OPTS="-a :<%= listen_port %> \
+             -T localhost:<%= mgmt_port %> \
+             -f /etc/varnish/default.vcl \
+             -u varnish -g varnish \
+             -s malloc,<%=
+mem,unit = memorysize.split
+mem = Float(mem).to_i
+case unit
+  when 'GB': mem *= 1024
+end
+mem/4
+%>M"
